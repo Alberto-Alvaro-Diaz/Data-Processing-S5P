@@ -32,7 +32,6 @@ import PlotSatelliteStyle as PSS
 #here the emission rate of the overpass is estimated with the data extracted from ERA5 and S5P
 #different methdos are applied to substract the background from the overpass
 
-
 #Select region (Pinto-Madrid-Toledo) corners area of the soundings
 region_area= {'lat_min':39.5,'lat_max':41.5, 'lon_min':-5,'lon_max':-2.75 }
 lat_min, lat_max = region_area['lat_min'], region_area['lat_max']
@@ -63,15 +62,7 @@ lat_bounds_folium=[]
 var_back_corrected_folium=[]
 date_folium=[]
 
-#lukas days 
-files={2021: [
-('S5P_OFFL_L2__CH4____20211008T123528_20211008T141657_20659_02_020200_20211010T044327' , 2.0),
-('S5P_OFFL_L2__CH4____20211109T123218_20211109T141348_21113_02_020200_20211111T045702' , 2.0)],
-    2022:
-[('S5P_OFFL_L2__CH4____20220202T123910_20220202T142040_22319_02_020301_20220204T044151' , 2.0)]
-}
-
-#important days 2019-2024
+#important days 2019-2024, carefully selected
 #PBL fixed at 1500m
 files={
     2024: [
@@ -122,27 +113,8 @@ files={
     # ('S5P_OFFL_L2__CH4____20190802T120357_20190802T134527_09337_01_010302_20190808T135252' , 2.5)
     # ]
 }    
-   
-#July of 2024
-files={2024: [('S5P_OFFL_L2__CH4____20240702T123111_20240702T141241_34818_03_020600_20240704T045500' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240703T121208_20240703T135338_34832_03_020600_20240705T042848' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240704T115305_20240704T133435_34846_03_020600_20240706T040506' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240708T121822_20240708T135951_34903_03_020600_20240710T043437' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240712T124336_20240712T142506_34960_03_020600_20240714T095018' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240713T122432_20240713T140602_34974_03_020600_20240715T101013' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240714T120528_20240714T134658_34988_03_020600_20240716T202003' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240717T124944_20240717T143114_35031_03_020600_20240719T234903' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240719T121135_20240719T135304_35059_03_020600_20240721T202333' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240722T125549_20240722T143719_35102_03_020600_20240724T051153' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240723T123644_20240723T141814_35116_03_020600_20240725T064738' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240724T121739_20240724T135908_35130_03_020600_20240726T072844' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240725T115833_20240725T134003_35144_03_020600_20240728T113012' , 2.0),
-              ('S5P_OFFL_L2__CH4____20240728T124246_20240728T142415_35187_03_020600_20240802T084731' , 2.0),
-              ]}
-files={2024:[('S5P_OFFL_L2__CH4____20240714T120528_20240714T134658_34988_03_020600_20240716T202003' , 2.0)]}
 
 for year, array in files.items():
-
     Folder_name= 'C:/M-MRS/SP5_Data/'+str(year)+'_CH4'  
     length_year.append(len(os.listdir(Folder_name)))
     years.append(year)
@@ -167,9 +139,7 @@ for year, array in files.items():
         folder_results="C:/M-MRS/Results/"+year+'/'+date
         if not os.path.exists(folder_results):
             os.makedirs(folder_results)
-       
-        
-        
+              
         ############################
         ######      ERA5      ######
         ############################
@@ -180,53 +150,36 @@ for year, array in files.items():
         Folder_name_profile='C:/M-MRS/ERA5_Data/Wind_profile/'+year+'/'
         File_name='Pressure_Levels_'+date
         File_name_profile=Folder_name_profile+File_name
-        
-        
+                
         FileProfile = Dataset(f'{File_name_profile}.nc')
-        
-        
+                
         #SURFACE PRESSURE, 10M AND 100M WIND FIELDS DATA
         Folder_name_wind100='C:/M-MRS/ERA5_Data/Surface_pressure_and_10_100_m_wind/'+year+'/'
         File_name = 'Single_Level_'+date
         File_name=Folder_name_wind100+File_name
         
         File_Sing_Level = Dataset(f'{File_name}.nc')
-        
-        
+           
         #function
         figname1=f"Vertical_Wind_Profile"
         figname2="Temp_Humid_O3_Profile"
         path_save1=os.path.join(folder_results,figname1)
         path_save2=os.path.join(folder_results,figname2)
         [wind_u_profile, wind_v_profile, wind_mean, PBL_altitude, delta_U]=VPW.vertical_profiel_wind_field(FileProfile,Lats,Long, path_save1=path_save1,path_save2=path_save2)
-        
-        
+                
         #function
         [Pressure, winds_array, lat, lon]=SPWF.surface_pressure_wind_field(File_Sing_Level,Lats,Long,region_area)
         
         # Calculations
         wind_final_data={
             'Wind Profile': (wind_mean, wind_u_profile, wind_v_profile)} 
-        ##############################
-        ######       AEMET      ######
-        ##############################
         
-        print('\nAEMET HARMONIE-AROME model')
-        
-        #WIND FIELDS PROFILE DATA 
-        Folder_name_files='C:/M-MRS/HARMONIE-AROME/grib_data/nc_files'
-        file_name_AEMET_1=f'fc{year}{month}{day}00+13h00m.nc'
-        file_name_AEMET_2=f'fc{year}{month}{day}12+01h00m.nc'
-        
-        
-
         ##############################
         ######      TROPOMI     ######
         ##############################
         
         print('\nTROPOMI S5P')
-        
-        
+          
         #function
         [var,lon,lat,long_bounds,lat_bounds, patches,date]=TD.tropomi_outputs(File, Lats, Long, region_area)
         
@@ -301,7 +254,6 @@ for year, array in files.items():
         
         coords_plume_down_wind , bckg_mean_wind = TFPP.find_plume_pixels(bck_sub_wind,lon,lat,Long,Lats,long_bounds, lat_bounds, F=F_upwind)
         
-        
         ##################################
         
         print('DXCH4 ppb striping: mean:',np.mean(bck_sub_strip[coords_plume_striping]),
@@ -349,11 +301,9 @@ for year, array in files.items():
                 Wind_eff[key2]=mean
                 Q[key2]=Wind_eff[key2]/(L)*IME*3.6*24*365/1000 #kt/yr
 
-
                 print(key2)
                 print('Emission rate (t/day)= ',Q[key2]*1000/365 ,
-                      '\nEmission rate (kt/yr)= ',Q[key2],'\n')
-            
+                      '\nEmission rate (kt/yr)= ',Q[key2],'\n') 
                 
             delta_U, delta_IME, delta_L = delta_U , delta_IME , 1/2*np.sqrt(N/area)*std_area #units [m/s], [g], [1/m]
             #delta_U is calculated as the standar deviation for each component (u,v) in the PBL and propagation the error to the mean in the PBL
@@ -369,7 +319,6 @@ for year, array in files.items():
             print('TEST Error Plume length (kt/yr):',abs(Wind_eff['Wind Profile']*IME/(L**2))*delta_L*C)
             print('TEST Total Error (kt/yr):',Propagation_errors*C)
             
-        
             Percent_error = abs(1-(Q['Wind Profile']-Propagation_errors*C)/(Q['Wind Profile']))*100
            
             #plots with Emission rates and save the figures
@@ -377,7 +326,6 @@ for year, array in files.items():
                   f'STD Thresshold: {F}\n'+
                   f'Percent Plume-Backg (%): {round(Percent_plume,2)}\n'+
                   f'Mean Raw Value: {round(mean_density,2)} (ppb)']
-
             
             var2=[lon[coord_plume],lat[coord_plume]] 
             title=r"S5P - XCH$_4$ - XCH$_{4,bck}$"f": {key} method ({date})"
@@ -394,13 +342,9 @@ for year, array in files.items():
                                   region_area, title, colorbar_label, 
                                   quivers_dictoniary=wind_final_data,
                                   clim=True, var2=var2, path_save=path_save, text1=text1)#, text2=text2)
-            
-
-
 
 all_date = [datetime.datetime.strptime(all_date, '%Y-%m-%d') for all_date in all_date]
 #plots backgrounds
-"""
 fig = plt.figure(figsize=(20, 10))
 
 months=['6','7','8']
@@ -457,10 +401,8 @@ bax.axvspan(datetime.datetime(2024, 6, 27, 0, 0), datetime.datetime(2024, 7, 11,
 
 bax.set_title('Background XCH$_4$ [ppb] NOAA vs TROPOMI: June-August (2019-2024)', pad=20, fontsize=15)
 plt.show()
-"""
 
 #plots emission rates for destriping method:
-
 fig = plt.figure(figsize=(20, 10))
 
 bax = brokenaxes(
@@ -537,10 +479,8 @@ bax.set_title('Emission Rates [kt/year]: PRTR Spain vs Tu et al. (2022) vs INTA 
 
 plt.show()  
 
-"""
 ########## plt folium map
 PSS.plot_satellite_style(coords_plume_folium, long_bounds_folium, lat_bounds_folium, var_back_corrected_folium,date_folium)
-"""
         
 print('\nEND')
 
