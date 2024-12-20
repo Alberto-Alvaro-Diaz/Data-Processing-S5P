@@ -45,9 +45,9 @@ Long=np.array([-3.637550, -3.590375, -3.363080, -4.168100, -3.70275])
 ####################
 
 #Use your credentials for the Copernicus Data Space Ecosystem
-username = "aalvdia@inta.es" 
-username2 = "alberto.alvaro.diaz@gmail.com"
-password = "AlvAlberto177!Inta"
+username = "username1" 
+username2 = "username2"
+password = "password"
 
 #Variant with importing credentials from a file:
 #from creds import * #The file "creds" contains username and password.
